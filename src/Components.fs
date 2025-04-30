@@ -91,6 +91,20 @@ module AppLoader =
                     Html.text desc
                 ]
             ]
+        let section (code: int) (name: string) =
+            let header = sprintf "Q%d. %s." code name
+            Html.h3 [
+                Html.a [
+                    prop.name (sprintf "name-%d" code)
+                ]
+                Html.text header
+            ]
+        let sectionRef (code: int) (name: string) =
+            let header = sprintf "Q%d. %s." code name
+            Html.a [
+                prop.href (sprintf "#name-%d" code)
+                prop.text header
+            ]
         Html.div [
             prop.className "container"
             prop.children [                    
@@ -153,9 +167,26 @@ module AppLoader =
                     ]
                 ]
                 React.fragment [                    
-                    Html.h2 [
-                        prop.text @"Q1. Find the names of employees in the Toy Department." 
+                    Html.p [
+                        prop.text @"List of examples: " 
                     ]
+                    Html.ul [
+                        prop.children [
+                            Html.li [ sectionRef 1 "Find the names of employees in the Toy Department" ]
+                            Html.li [ sectionRef 2 "Find the average salary of employees in the Shoe Department" ]
+                            Html.li [ sectionRef 3 "Find those items sold by departments on the second floor" ]
+                            Html.li [ sectionRef 4 "Find the salary of Anderson's manager" ]
+                            Html.li [ sectionRef 5 "Find the names of employees who make more than their managers" ]
+                            Html.li [ sectionRef 6 "List the name and salary of all managers who manage more than ten employees" ]
+                            Html.li [ sectionRef 7 "Find those companies, each of which supplies every item" ]
+                            Html.li [ sectionRef 8 "Find the volume of guns sold by the Toy Department" ]
+                            Html.li [ sectionRef 9 "List the names and managers of employees in the Shoe Department with a salary greater than 10000" ]
+                            Html.li [ sectionRef 10 "Find the names of those employees who make more than any employee in the Shoe Department" ]
+                        ]
+                    ]
+                ]
+                React.fragment [  
+                    section 1 "Find the names of employees in the Toy Department"
                     Html.p [
                         prop.text @"The following SQUARE query will return the names of employees in the Toy Department."
                     ]
@@ -190,9 +221,7 @@ lation, finding 'TOY' entries and making a list of the corresponding NAME entrie
                     ]
                 ]
                 React.fragment [
-                    Html.h2 [
-                        prop.text @"Q2. Find the average salary of employees in the Shoe Department. " 
-                    ]
+                    section 2 "Find the average salary of employees in the Shoe Department"
                     Html.p [
                         prop.text @"The following SQUARE query will return the average salary of employees in the Shoe Department."
                     ]
@@ -225,9 +254,7 @@ lation, finding 'TOY' entries and making a list of the corresponding NAME entrie
                 ]
                 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q3. Find those items sold by departments on the second floor." 
-                    ]
+                    section 3 "Find those items sold by departments on the second floor"
                     Html.pre [
                         prop.children [
                             Html.text "    "
@@ -268,9 +295,7 @@ not be identical, as illustrated by Q4."
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q4. Find the salary of Anderson's manager. " 
-                    ]
+                    section 4 "Find the salary of Anderson's manager"
                     Html.pre [
                         prop.children [
                             Html.text "   "
@@ -328,9 +353,7 @@ represents a particular field-value from the row represented by the free variabl
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q5. Find the names of employees who make more than their managers. " 
-                    ]
+                    section 5 "Find the names of employees who make more than their managers"
                     Html.pre [
                         prop.children [
                             Html.text "x"
@@ -387,9 +410,7 @@ represents a particular field-value from the row represented by the free variabl
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q6. List the name and salary of all managers who manage more than ten employees." 
-                    ]
+                    section 6 "List the name and salary of all managers who manage more than ten employees"
                     Html.pre [
                         prop.children [
                             Html.text "x"
@@ -400,7 +421,7 @@ represents a particular field-value from the row represented by the free variabl
                             Html.text "    "
                             relationship "EMP"
                             Html.text "    "
-                            Html.text "(x    )) > lO\n"
+                            Html.text "(x    )) > 10\n"
                             Html.text " "
                             property "NAME, SAL"
                             Html.text "                "
@@ -441,9 +462,7 @@ relation. For example,
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q7. Find those companies, each of which supplies every item. " 
-                    ]
+                    section 7 "Find those companies, each of which supplies every item"
                     Html.pre [
                         prop.children [
                             Html.text "x"
@@ -482,9 +501,7 @@ useful in dealing with n-ary associations. For example: "
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q8. Find the volume of guns sold by the Toy Department.  " 
-                    ]
+                    section 8 "Find the volume of guns sold by the Toy Department"
                     Html.pre [
                         prop.children [
                             Html.text "    "
@@ -519,9 +536,7 @@ the given argument. This type of mapping often avoids the use of a free variable
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q9. List the names and managers of employees in the Shoe Department with a salary greater than 10000." 
-                    ]
+                    section 9 "List the names and managers of employees in the Shoe Department with a salary greater than 10000"
                     Html.pre [
                         prop.children [
                             Html.text "         "
@@ -554,9 +569,7 @@ queries like the following: "
                 ]
 
                 React.fragment [
-                    Html.h3 [
-                        prop.text @"Q10. Find the names of those employees who make more than any employee in the Shoe Department." 
-                    ]
+                    section 10 "Find the names of those employees who make more than any employee in the Shoe Department"
                     Html.pre [
                         prop.children [
                             Html.text "x"

@@ -5,4 +5,4 @@ open App
 open Browser.Dom
 
 let root = ReactDOM.createRoot(document.getElementById "square-app")
-root.render(Components.Router())
+root.render(Components.Square())
