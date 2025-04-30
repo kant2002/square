@@ -439,6 +439,173 @@ relation. For example,
 `ITEM SUPPLY` is the set of all item-values in the SUPPLY relation. This feature is useful in constructing expressions like the following: "
                     ]
                 ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q7. Find those companies, each of which supplies every item. " 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "x"
+                            Html.text "          "
+                            Html.text "ε "
+                            relationship "SUPPLY"
+                            Html.text " : "
+                            Html.text "   "
+                            relationship "SUPPLY"
+                            Html.text "    "
+                            Html.text "(x    )) =     "
+                            relationship "SUPPLY"
+                            Html.text "\n"
+                            Html.text " "
+                            property "COMP"
+                            Html.text "                "
+                            property "ITEM"
+                            Html.text "      "
+                            property "COMP"
+                            Html.text "  "
+                            property "NAME"
+                            Html.text "     "
+                            property "ITEM"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Cannot build equivalent in SQL. Feel free to contribute."
+                    ]
+                    Html.p [
+                        prop.text @"We will now discuss some extensions to the concept of mapping. 
+A mapping may specify more than one 
+domain field in which case each domain field must be compatible with its reSpective argument. If an argument
+is a set then the value of the domain field must match some element of the set. This facility is 
+useful in dealing with n-ary associations. For example: "
+                    ]
+                ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q8. Find the volume of guns sold by the Toy Department.  " 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "    "
+                            relationship "SALES"
+                            Html.text "          "
+                            Html.text "('Toy', 'Gun')\n"
+                            property "VOL"
+                            Html.text "     "
+                            property "DEPT, ITEM"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   VOL\n"
+                            Html.text "FROM     SALES\n"
+                            Html.text "WHERE    DEPT = 'TOY'\n"
+                            Html.text " AND     ITEM = 'GUN'\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Similarly, a mapping may specify more than one range field, in which case it returns tuples of values from 
+the fields specified. "
+                    ]
+                    Html.p [
+                        prop.text @"When one of the numeric comparison operators ≠, <, >, ≥, ≤, is used as a prefix to the argument of a 
+mapping, the argument effectively becomes the set of all values which compare by the given operator with 
+the given argument. This type of mapping often avoids the use of a free variable, as illustrated in Q9."
+                    ]
+                ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q9. List the names and managers of employees in the Shoe Department with a salary greater than 10000." 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "         "
+                            relationship "EMP"
+                            Html.text "         "
+                            Html.text "('SHOE', > 10000)\n"
+                            property "NAME, MGR"
+                            Html.text "   "
+                            property "DEPT, SAL"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   NAME, MGR\n"
+                            Html.text "FROM     EMP\n"
+                            Html.text "WHERE    DEPT = 'SHOE'\n"
+                            Html.text " AND     SAL > 10000\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"The numeric comparison operators <, >, ≥, ≤, may also be extended so that a number may be compared to a set. 
+This is done by placing the word SOME or ALL on the side(s) of the comparison operator which is a 
+set. For example, `X > ALL Y` is true if the number X is greater than all elements of the set Y, and 
+`Y ALL < SOME Z` is true if all elements of Y are less than some element of Z. This facility is useful in 
+queries like the following: "
+                    ]
+                ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q10. Find the names of those employees who make more than any employee in the Shoe Department." 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "x"
+                            Html.text "    "
+                            Html.text "ε "
+                            relationship "EMP"
+                            Html.text " : x"
+                            Html.text "   "
+                            Html.text "> ALL"
+                            Html.text "   "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "('SHOE')\n"
+                            Html.text " "
+                            property "NAME"
+                            Html.text "         "
+                            property "SAL"
+                            Html.text "     "
+                            property "SAL"
+                            Html.text "   "
+                            property "DEPT"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   NAME\n"
+                            Html.text "FROM     EMP\n"
+                            Html.text "WHERE    SAL >= (\n"
+                            Html.text "                 SELECT  MAX(SAL)\n"
+                            Html.text "                 FROM    EMP\n"
+                            Html.text "                 WHERE   DEPT = 'SHOE')\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"In understanding Ql0, it is important to remember that the free variable x represents a row of the EMP 
+relation. If the test (which uses the SAL value of the row) is true, the NAME value of the row is 
+returned. All rows of the relation are tested in this way, and duplicate values are eliminated from 
+the returned set."
+                    ]
+                    Html.p [
+                        prop.text @"It should be noted that the functions of ALL and SOME could be accomplished equally well by the built- 
+in functions MAX and MIN. In fact, definitions of the modifiers ALL and SOME are given by the following 
+table, which specifies how any modifier may be replaced by a built-in function."
+                    ]
+                ]
+
                 Html.hr []
                 Html.p [
                     Html.text "Written in Feliz and F#. Source code on "
