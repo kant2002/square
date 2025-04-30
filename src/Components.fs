@@ -134,20 +134,263 @@ module AppLoader =
                     relationship "CLASS"
                     Html.text @" relation has the following attributes: ITEM, TYPE." 
                 ]
-                Html.p [
-                    prop.innerHtml @"Following properties coded: " 
+                React.fragment [                    
+                    Html.p [
+                        prop.text @"Following properties coded: " 
+                    ]
+                    Html.ul [
+                        prop.children [
+                            propertyDescription "NAME" "The name of the employee."
+                            propertyDescription "SAL" "The salary of the employee."
+                            propertyDescription "MGR" "The manager of the employee."
+                            propertyDescription "DEPT" "The department code."
+                            propertyDescription "ITEM" "The SKU of item."
+                            propertyDescription "VOL" "The volume of the item sold."
+                            propertyDescription "COMP" "The company that supplies the item."
+                            propertyDescription "FLOOR" "The floor of the department."
+                            propertyDescription "TYPE" "The type of the item."
+                        ]
+                    ]
                 ]
-                Html.ul [
-                    prop.children [
-                        propertyDescription "NAME" "The name of the employee."
-                        propertyDescription "SAL" "The salary of the employee."
-                        propertyDescription "MGR" "The manager of the employee."
-                        propertyDescription "DEPT" "The department code."
-                        propertyDescription "ITEM" "The SKU of item."
-                        propertyDescription "VOL" "The volume of the item sold."
-                        propertyDescription "COMP" "The company that supplies the item."
-                        propertyDescription "FLOOR" "The floor of the department."
-                        propertyDescription "TYPE" "The type of the item."
+                React.fragment [                    
+                    Html.h2 [
+                        prop.text @"Q1. Find the names of employees in the Toy Department." 
+                    ]
+                    Html.p [
+                        prop.text @"The following SQUARE query will return the names of employees in the Toy Department."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "    "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "('Toy')\n"
+                            property "NAME"
+                            Html.text "   "
+                            property "DEPT"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"A mapping consists of a relation name (EMP), a domain name (DEPT), a range name (NAME), and an argument 
+('TOY'). The value of the mapping is the set of values in the range column of the named relation whose 
+associated values in the domain column match the argument. This mapping evaluates to a unary relation (in 
+this case, a list of names.) Mapping emulates the way in which people use tables. In this example, to 
+find the names of employees in the Toy Department, a person might look down the DEPT column of the EMP re- 
+lation, finding 'TOY' entries and making a list of the corresponding NAME entries. "
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   NAME\n"
+                            Html.text "FROM     EMP\n"
+                            Html.text "WHERE    DEPT = 'Toy'\n"
+                        ]
+                    ]
+                ]
+                React.fragment [
+                    Html.h2 [
+                        prop.text @"Q2. Find the average salary of employees in the Shoe Department. " 
+                    ]
+                    Html.p [
+                        prop.text @"The following SQUARE query will return the average salary of employees in the Shoe Department."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "AVG ("
+                            Html.text "   "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "('Shoe'))\n"
+                            Html.text "     "
+                            property "SAL"
+                            Html.text "   "
+                            property "DEPT"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   AVG(SAL)\n"
+                            Html.text "FROM     EMP\n"
+                            Html.text "WHERE    DEPT = 'Shoe'\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Mappings may be ""composed"" by applying one mapping to the result of another, as illustrated by Q3. "
+                    ]
+                ]
+                
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q3. Find those items sold by departments on the second floor." 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "    "
+                            relationship "SALES"
+                            Html.text "    "
+                            Html.text "o"
+                            Html.text "    "
+                            relationship "LOC"
+                            Html.text "     "
+                            Html.text "('2'))\n"
+                            property "ITEM"
+                            Html.text "     "
+                            property "DEPT"
+                            Html.text " "
+                            property "DEPT"
+                            Html.text "   "
+                            property "FLOOR"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   ITEM\n"
+                            Html.text "FROM     SALES\n"
+                            Html.text "WHERE    DEPT = (\n"
+                            Html.text "                 SELECT  DEPT\n"
+                            Html.text "                 FROM    LOC\n"
+                            Html.text "                 WHERE   FLOOR = '2')\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"The floor '2' is first mapped to the departments located there, and then to the items which they sell. 
+The range of the inner mapping must be compatible with the domain of the outer mapping, but they need 
+not be identical, as illustrated by Q4."
+                    ]
+                ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q4. Find the salary of Anderson's manager. " 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "   "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "o"
+                            Html.text "   "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "('ANDERSON'))\n"
+                            property "SAL"
+                            Html.text "   "
+                            property "NAME"
+                            Html.text " "
+                            property "MGR"
+                            Html.text "   "
+                            property "NAME"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   SAL\n"
+                            Html.text "FROM     EMP\n"
+                            Html.text "WHERE    NAME = (\n"
+                            Html.text "                 SELECT  MGR\n"
+                            Html.text "                 FROM    EMP\n"
+                            Html.text "                 WHERE   NAME = 'ANDERSON')\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Q3 is repeated in Section Ill in order to demonstrate the different perception of the query that is re- 
+quired in order to answer the query in a predicate calculus-like language."
+                    ]
+                    Html.p [
+                        prop.text @"The next important building block of relational expressions is called a free variable. A relational 
+expression containing a free variable takes the following form: "
+                    ]
+                    Html.p [
+                        prop.style [
+                            style.fontStyle.italic
+                        ]
+                        prop.text @"free-variable-list : test"
+                    ]
+                    Html.p [
+                        prop.text @"On the left side of the colon are listed the free variables to be used in the query and the relations to 
+which they belong. Each free variable represents a row of a relation. Free variables may be given arbitrary 
+names provided they do not conflict with the names of relations. On the right side of the colon 
+is a logical test which may be true or false for each set of values of the free variables. The value of 
+the expression is the set of free-variable values for which the test is true. A subscripted free variable 
+represents a particular field-value from the row represented by the free variable. For example: "
+                    ]
+                ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q5. Find the names of employees who make more than their managers. " 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "x"
+                            Html.text "    "
+                            Html.text "ε "
+                            relationship "EMP"
+                            Html.text " : x"
+                            Html.text "    "
+                            Html.text ">"
+                            Html.text "   "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "(x    ))\n"
+                            Html.text " "
+                            property "SAL"
+                            Html.text "          "
+                            property "NAME"
+                            Html.text " "
+                            property "MGR"
+                            Html.text "   "
+                            property "NAME"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   SAL\n"
+                            Html.text "FROM     EMP\n"
+                            Html.text "WHERE    NAME > (\n"
+                            Html.text "                 SELECT  MGR\n"
+                            Html.text "                 FROM    EMP)\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"The following types of operators are permissible in tests: "
+                    ]
+                    Html.ul [
+                        prop.children [
+                            Html.li "Numeric comparisons: =, ≠, <, >, ≥, ≤"
+                            Html.li "Set comparisons: =, ≠, ⊆, ⊂, ⊇, ⊃"
+                            Html.li "Arithmetic operators: +, -, *, /"
+                            Html.li "Set operators: ∪ ∩"
+                            Html.li "Logical connectivity: ∧ ∨ -"
+                            Html.li "Set intersection operator: ∩"
+                            Html.li "parentheses for grouping: ( )"
+                            Html.li "built-in functions: SUM, COUNT, AVG, MAX, MIN, etc. "
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"The following example constructs a binary relation: "
+                    ]
+                ]
+                Html.hr []
+                Html.p [
+                    Html.text "Written in Feliz and F#. Source code on "
+                    Html.a [
+                        prop.href "https://github.com/kant2002/square"
+                        prop.text "GitHub"
                     ]
                 ]
             ]
