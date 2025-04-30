@@ -385,6 +385,60 @@ represents a particular field-value from the row represented by the free variabl
                         prop.text @"The following example constructs a binary relation: "
                     ]
                 ]
+
+                React.fragment [
+                    Html.h3 [
+                        prop.text @"Q6. List the name and salary of all managers who manage more than ten employees." 
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "x"
+                            Html.text "          "
+                            Html.text "ε "
+                            relationship "EMP"
+                            Html.text " : COUNT ("
+                            Html.text "    "
+                            relationship "EMP"
+                            Html.text "    "
+                            Html.text "(x    )) > lO\n"
+                            Html.text " "
+                            property "NAME, SAL"
+                            Html.text "                "
+                            property "NAME"
+                            Html.text "   "
+                            property "MGR"
+                            Html.text "   "
+                            property "NAME"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"Equivalent in SQL."
+                    ]
+                    Html.pre [
+                        prop.children [
+                            Html.text "SELECT   x.NAME, x.SAL\n"
+                            Html.text "FROM     EMP x\n"
+                            Html.text "WHERE    x.NAME = (\n"
+                            Html.text "                 SELECT  MGR\n"
+                            Html.text "                 FROM    EMP)\n"
+                            Html.text "GROUP BY x.NAME, x.SAL\n"
+                            Html.text "HAVING COUNT(*) > 10\n"
+                        ]
+                    ]
+                    Html.p [
+                        prop.text @"The free variable is introduced into queries where it becomes necessary to correlate information per- 
+taining to a specific row in a table with another row or set of rows from some table. Consequently, this 
+variable is introduced only for queries that are more complex than simple selection. As can be seen in 
+Section III, all queries regardless of complexity require free variables in predicate calculus based 
+languages. "
+                    ]
+                    Html.p [
+                        prop.text @"Another important concept is that of projection. If a relation-name appears subscripted by one or 
+more column-names, it represents the set of unique tuples of values occurring in those columns of the 
+relation. For example, 
+`ITEM SUPPLY` is the set of all item-values in the SUPPLY relation. This feature is useful in constructing expressions like the following: "
+                    ]
+                ]
                 Html.hr []
                 Html.p [
                     Html.text "Written in Feliz and F#. Source code on "
