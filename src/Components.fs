@@ -635,6 +635,3 @@ type Components =
     static member Square() =
         let state, dispatch = React.useElmish(AppLoader.init, AppLoader.update, [| |])
         AppLoader.render state dispatch
-
-
-        ]
