@@ -20,6 +20,49 @@ module AppLoader =
     type State = {
         highligted: HoverState
     }
+
+    type PropertyInformation = {
+        name: string
+        description: string
+    }
+    type RelationshipInformation = {
+        name: string
+        description: string
+        properties: PropertyInformation list
+    }
+    type SchemaInformation = {
+        relationships: RelationshipInformation list
+    }
+
+    let NAME = { name = "NAME"; description = "The name of the employee." }
+    let SAL = { name = "SAL"; description = "The salary of the employee." }
+    let MGR = { name = "MGR"; description = "The manager of the employee." }
+    let DEPT = { name = "DEPT"; description = "The department code." }
+    let ITEM = { name = "ITEM"; description = "The SKU of item." }
+    let VOL = { name = "VOL"; description = "The volume of the item sold." }
+    let COMP = { name = "COMP"; description = "The company that supplies the item." }
+    let FLOOR = { name = "FLOOR"; description = "The floor of the department." }
+    let TYPE = { name = "TYPE"; description = "The type of the item." }
+    let EMP = { name = "EMP"; description = "The employee relation." }
+    let SALES = { name = "SALES"; description = "The sales relation." }
+    let SUPPLY = { name = "SUPPLY"; description = "The supply relation." }
+    let LOC = { name = "LOC"; description = "The location relation." }
+    let CLASS = { name = "CLASS"; description = "The class relation." }
+    let EMP_RELATIONSHIP = { name = "EMP"; description = "Information about employeees."; properties = [NAME; SAL; MGR; DEPT] }
+    let SALES_RELATIONSHIP = { name = "SALES"; description = "Information about department sales."; properties = [DEPT; ITEM; VOL] }
+    let SUPPLY_RELATIONSHIP = { name = "SUPPLY"; description = "Information about supply components."; properties = [COMP; DEPT; ITEM; VOL] }
+    let LOC_RELATIONSHIP = { name = "LOC"; description = "Locations of the departments."; properties = [DEPT; FLOOR] }
+    let CLASS_RELATIONSHIP = { name = "CLASS"; description = "Classification for items."; properties = [ITEM; TYPE] }
+    let schema = {
+        relationships = [
+            EMP_RELATIONSHIP
+            SALES_RELATIONSHIP
+            SUPPLY_RELATIONSHIP
+            LOC_RELATIONSHIP
+            CLASS_RELATIONSHIP
+        ]
+    }
+
     let init () = 
         { highligted = NotHovered }, Cmd.none
 
@@ -35,60 +78,62 @@ module AppLoader =
             { state with highligted = NotHovered }, Cmd.none
 
     let render state dispatch = 
-        let relationship name  =
+        let relationship (name: RelationshipInformation)  =
             Html.span [
                 match state.highligted with
                 | Relationship r ->
-                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name))
+                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name.name))
                     prop.onMouseOut (fun _ -> dispatch UnHover)
                 | _ -> 
-                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name))
+                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name.name))
                     prop.onMouseOut (fun _ -> dispatch UnHover)
                 prop.className "relationship"
                 prop.style [
                     style.cursor.pointer
-                    style.color (if state.highligted = Relationship name then "blue" else "black")
+                    style.color (if state.highligted = Relationship name.name then "blue" else "black")
                     //style.fontWeight (if state.highligted = Relationship name then 700 else 400)
                     style.fontWeight 700
                 ]
-                prop.text name
+                prop.text name.name
+                prop.title name.description
             ] 
-        let property name  =
+        let property (name: PropertyInformation)  =
             Html.span [
                 match state.highligted with
                 | Property r ->
-                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name))
+                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name.name))
                     prop.onMouseOut (fun _ -> dispatch UnHover)
                 | _ -> 
-                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name))
+                    prop.onMouseOver (fun _ -> dispatch (HoverRelationship name.name))
                     prop.onMouseOut (fun _ -> dispatch UnHover)
                 prop.className "property"
                 prop.style [
                     style.cursor.pointer
-                    style.color (if state.highligted = Relationship name then "blue" else "black")
+                    style.color (if state.highligted = Relationship name.name then "blue" else "black")
                     //style.fontWeight (if state.highligted = Relationship name then 700 else 400)
                     //style.fontWeight 700
                     //style.fontStyle.italic
                 ]
-                prop.text name
+                prop.text name.name
+                prop.title name.description
             ] 
-        let relationshipProperties name (properties: string seq) =
+        let relationshipProperties relation_desc =
             Html.span [
                 prop.children [
-                    relationship name
+                    relationship relation_desc
                     Html.text " ( "
-                    for p in properties do
+                    for p in relation_desc.properties do
                         property p
                         Html.text " "
                     Html.text ")\n"
                 ]
             ]
-        let propertyDescription name (desc: string) = 
+        let propertyDescription (name: PropertyInformation)  = 
             Html.li [
                 prop.children [
                     property name
                     Html.text " - "
-                    Html.text desc
+                    Html.text name.description
                 ]
             ]
         let section (code: int) (name: string) =
@@ -105,6 +150,32 @@ module AppLoader =
                 prop.href (sprintf "#name-%d" code)
                 prop.text header
             ]
+
+        let relationship_attributes rel = 
+            let rec print_prop (list: PropertyInformation list) = 
+                match list with
+                | [] -> Html.text ""
+                | [x] -> property x
+                | x::t -> 
+                    React.fragment [
+                        property x
+                        Html.text ", "
+                        print_prop t
+                    ]
+            React.fragment [
+                Html.text "The "
+                relationship rel
+                Html.text " relation has the following attributes: "
+                print_prop rel.properties 
+                Html.text "."
+            ]
+        let sql_view (sql: string) =
+            Html.pre [
+                prop.children [
+                    Html.text sql
+                ]
+            ]
+
         Html.div [
             prop.className "container"
             prop.children [                    
@@ -124,29 +195,19 @@ module AppLoader =
                 ]
                 Html.pre [
                     //prop.className "text-center"
-                    relationshipProperties "EMP" ["NAME"; "SAL"; "MGR"; "DEPT"]
-                    relationshipProperties "SALES" ["DEPT"; "ITEM"; "VOL"]
-                    relationshipProperties "SUPPLY" ["COMP"; "DEPT"; "ITEM"; "VOL"]
-                    relationshipProperties "LOC" ["DEPT"; "FLOOR"]
-                    relationshipProperties "CLASS" ["ITEM"; "TYPE"]
+                    relationshipProperties EMP_RELATIONSHIP
+                    relationshipProperties SALES_RELATIONSHIP
+                    relationshipProperties SUPPLY_RELATIONSHIP
+                    relationshipProperties LOC_RELATIONSHIP
+                    relationshipProperties CLASS_RELATIONSHIP
                 ]
                 Html.p [
-                    Html.text @"As can be easiely seen, the schema is very simple. It has only 5 relations. 
-                    The " 
-                    relationship "EMP"
-                    Html.text @" relation has the following attributes: NAME, SAL, MGR, DEPT. 
-                    The " 
-                    relationship "SALES"
-                    Html.text @" relation has the following attributes: DEPT, ITEM, VOL. 
-                    The " 
-                    relationship "SUPPLY"
-                    Html.text @" relation has the following attributes: COMP, DEPT, ITEM, VOL. 
-                    The " 
-                    relationship "LOC"
-                    Html.text @" relation has the following attributes: DEPT, FLOOR. 
-                    The " 
-                    relationship "CLASS"
-                    Html.text @" relation has the following attributes: ITEM, TYPE." 
+                    Html.text @"As can be easiely seen, the schema is very simple. It has only 5 relations. "
+                    relationship_attributes EMP_RELATIONSHIP
+                    relationship_attributes SALES_RELATIONSHIP
+                    relationship_attributes SUPPLY_RELATIONSHIP
+                    relationship_attributes LOC_RELATIONSHIP
+                    relationship_attributes CLASS_RELATIONSHIP
                 ]
                 React.fragment [                    
                     Html.p [
@@ -154,15 +215,15 @@ module AppLoader =
                     ]
                     Html.ul [
                         prop.children [
-                            propertyDescription "NAME" "The name of the employee."
-                            propertyDescription "SAL" "The salary of the employee."
-                            propertyDescription "MGR" "The manager of the employee."
-                            propertyDescription "DEPT" "The department code."
-                            propertyDescription "ITEM" "The SKU of item."
-                            propertyDescription "VOL" "The volume of the item sold."
-                            propertyDescription "COMP" "The company that supplies the item."
-                            propertyDescription "FLOOR" "The floor of the department."
-                            propertyDescription "TYPE" "The type of the item."
+                            propertyDescription NAME
+                            propertyDescription SAL
+                            propertyDescription MGR
+                            propertyDescription DEPT
+                            propertyDescription ITEM
+                            propertyDescription VOL
+                            propertyDescription COMP
+                            propertyDescription FLOOR
+                            propertyDescription TYPE
                         ]
                     ]
                 ]
@@ -193,12 +254,12 @@ module AppLoader =
                     Html.pre [
                         prop.children [
                             Html.text "    "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "('Toy')\n"
-                            property "NAME"
+                            property NAME
                             Html.text "   "
-                            property "DEPT"
+                            property DEPT
                         ]
                     ]
                     Html.p [
@@ -212,13 +273,10 @@ lation, finding 'TOY' entries and making a list of the corresponding NAME entrie
                     Html.p [
                         prop.text @"Equivalent in SQL."
                     ]
-                    Html.pre [
-                        prop.children [
-                            Html.text "SELECT   NAME\n"
-                            Html.text "FROM     EMP\n"
-                            Html.text "WHERE    DEPT = 'Toy'\n"
-                        ]
-                    ]
+                    sql_view
+                        ("SELECT   NAME\n"
+                            + "FROM     EMP\n"
+                            + "WHERE    DEPT = 'Toy'\n")
                 ]
                 React.fragment [
                     section 2 "Find the average salary of employees in the Shoe Department"
@@ -229,13 +287,13 @@ lation, finding 'TOY' entries and making a list of the corresponding NAME entrie
                         prop.children [
                             Html.text "AVG ("
                             Html.text "   "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "('Shoe'))\n"
                             Html.text "     "
-                            property "SAL"
+                            property SAL
                             Html.text "   "
-                            property "DEPT"
+                            property DEPT
                         ]
                     ]
                     Html.p [
@@ -258,20 +316,20 @@ lation, finding 'TOY' entries and making a list of the corresponding NAME entrie
                     Html.pre [
                         prop.children [
                             Html.text "    "
-                            relationship "SALES"
+                            relationship SALES_RELATIONSHIP
                             Html.text "    "
                             Html.text "o"
                             Html.text "    "
-                            relationship "LOC"
+                            relationship LOC_RELATIONSHIP
                             Html.text "     "
                             Html.text "('2'))\n"
-                            property "ITEM"
+                            property ITEM
                             Html.text "     "
-                            property "DEPT"
+                            property DEPT
                             Html.text " "
-                            property "DEPT"
+                            property DEPT
                             Html.text "   "
-                            property "FLOOR"
+                            property FLOOR
                         ]
                     ]
                     Html.p [
@@ -299,20 +357,20 @@ not be identical, as illustrated by Q4."
                     Html.pre [
                         prop.children [
                             Html.text "   "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "o"
                             Html.text "   "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "('ANDERSON'))\n"
-                            property "SAL"
+                            property SAL
                             Html.text "   "
-                            property "NAME"
+                            property NAME
                             Html.text " "
-                            property "MGR"
+                            property MGR
                             Html.text "   "
-                            property "NAME"
+                            property NAME
                         ]
                     ]
                     Html.p [
@@ -359,22 +417,22 @@ represents a particular field-value from the row represented by the free variabl
                             Html.text "x"
                             Html.text "    "
                             Html.text "ε "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text " : x"
                             Html.text "    "
                             Html.text ">"
                             Html.text "   "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "(x    ))\n"
                             Html.text " "
-                            property "SAL"
+                            property SAL
                             Html.text "          "
-                            property "NAME"
+                            property NAME
                             Html.text " "
-                            property "MGR"
+                            property MGR
                             Html.text "   "
-                            property "NAME"
+                            property NAME
                         ]
                     ]
                     Html.p [
@@ -416,20 +474,22 @@ represents a particular field-value from the row represented by the free variabl
                             Html.text "x"
                             Html.text "          "
                             Html.text "ε "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text " : COUNT ("
                             Html.text "    "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "(x    )) > 10\n"
                             Html.text " "
-                            property "NAME, SAL"
+                            property NAME
+                            Html.text ", "
+                            property SAL
                             Html.text "                "
-                            property "NAME"
+                            property NAME
                             Html.text "   "
-                            property "MGR"
+                            property MGR
                             Html.text "   "
-                            property "NAME"
+                            property NAME
                         ]
                     ]
                     Html.p [
@@ -468,24 +528,24 @@ relation. For example,
                             Html.text "x"
                             Html.text "          "
                             Html.text "ε "
-                            relationship "SUPPLY"
+                            relationship SUPPLY_RELATIONSHIP
                             Html.text " : "
                             Html.text "   "
-                            relationship "SUPPLY"
+                            relationship SUPPLY_RELATIONSHIP
                             Html.text "    "
                             Html.text "(x    )) =     "
-                            relationship "SUPPLY"
+                            relationship SUPPLY_RELATIONSHIP
                             Html.text "\n"
                             Html.text " "
-                            property "COMP"
+                            property COMP
                             Html.text "                "
-                            property "ITEM"
+                            property ITEM
                             Html.text "      "
-                            property "COMP"
+                            property COMP
                             Html.text "  "
-                            property "NAME"
+                            property NAME
                             Html.text "     "
-                            property "ITEM"
+                            property ITEM
                         ]
                     ]
                     Html.p [
@@ -504,13 +564,15 @@ useful in dealing with n-ary associations. For example: "
                     section 8 "Find the volume of guns sold by the Toy Department"
                     Html.pre [
                         prop.children [
-                            Html.text "    "
-                            relationship "SALES"
+                            Html.text "   "
+                            relationship SALES_RELATIONSHIP
                             Html.text "          "
                             Html.text "('Toy', 'Gun')\n"
-                            property "VOL"
+                            property VOL
                             Html.text "     "
-                            property "DEPT, ITEM"
+                            property DEPT
+                            Html.text ", "
+                            property ITEM
                         ]
                     ]
                     Html.p [
@@ -540,12 +602,16 @@ the given argument. This type of mapping often avoids the use of a free variable
                     Html.pre [
                         prop.children [
                             Html.text "         "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "         "
                             Html.text "('SHOE', > 10000)\n"
-                            property "NAME, MGR"
+                            property NAME
+                            Html.text ", "
+                            property MGR
                             Html.text "   "
-                            property "DEPT, SAL"
+                            property DEPT
+                            Html.text ", "
+                            property SAL
                         ]
                     ]
                     Html.p [
@@ -575,22 +641,22 @@ queries like the following: "
                             Html.text "x"
                             Html.text "    "
                             Html.text "ε "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text " : x"
                             Html.text "   "
                             Html.text "> ALL"
                             Html.text "   "
-                            relationship "EMP"
+                            relationship EMP_RELATIONSHIP
                             Html.text "    "
                             Html.text "('SHOE')\n"
                             Html.text " "
-                            property "NAME"
+                            property NAME
                             Html.text "         "
-                            property "SAL"
+                            property SAL
                             Html.text "     "
-                            property "SAL"
+                            property SAL
                             Html.text "   "
-                            property "DEPT"
+                            property DEPT
                         ]
                     ]
                     Html.p [
